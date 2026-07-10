@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 1. Фоновый слой, который перекрывает белый круг системы -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FF2C4A7C" />
+        </shape>
+    </item>
+
+    <!-- 2. Сам логотип. Используем ic_launcher_foreground, чтобы не было белого фона.
+         Padding 38dp (из 108dp общего размера) гарантирует, что квадрат впишется в круг 72dp -->
+    <item
+        android:drawable="@mipmap/ic_launcher_foreground"
+        android:top="38dp"
+        android:bottom="38dp"
+        android:left="38dp"
+        android:right="38dp" />
+</layer-list>

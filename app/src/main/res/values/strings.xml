@@ -1,0 +1,144 @@
+<resources>
+    <string name="app_name">Календарь Штурмана</string>
+    <string name="settings_title">Настройки</string>
+    <string name="new_reminder_title">Новое событие</string>
+    <string name="edit_reminder_title">Изменить</string>
+    <string name="settings_description">Настройки</string>
+    <string name="add_description">Добавить</string>
+    <string name="back_description">Назад</string>
+    <string name="delete_description">Удалить</string>
+    <string name="save_button">Готово</string>
+    <string name="change_melody_button">Изменить</string>
+    <string name="select_melody_picker_title">Выбор звука</string>
+    <string name="event_title_label">Что планируем?</string>
+    <string name="description_label">Заметки</string>
+    <string name="repeat_label">Повтор</string>
+    <string name="data_section_title">Данные</string>
+    <string name="system_calendar_sync">В системный календарь</string>
+    <string name="empty_day_title">Свободно</string>
+    <string name="no_title">Без названия</string>
+    <string name="default_melody">Стандартный</string>
+    <string name="date_format">%1$d %2$s</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+    <string name="default_melody_status_format">По умолчанию: %1$s</string>
+    <string name="mon">Пн</string>
+    <string name="tue">Вт</string>
+    <string name="wed">Ср</string>
+    <string name="thu">Чт</string>
+    <string name="fri">Пт</string>
+    <string name="sat">Сб</string>
+    <string name="sun">Вс</string>
+    <string name="period_once">Разово</string>
+    <string name="period_daily">День</string>
+    <string name="period_weekly">Неделя</string>
+    <string name="period_monthly">Месяц</string>
+    <string name="period_yearly">Год</string>
+    <string name="default_event_description">Напоминание из Календаря</string>
+
+    <!-- Notifications -->
+    <string name="notification_default_title">Напоминание</string>
+    <string name="notification_channel_name">Напоминания</string>
+    <string name="notification_channel_description">Канал для напоминаний календаря</string>
+    <string name="notification_text">Пора!</string>
+    <string name="snooze_15">Отложить 15 мин</string>
+    <string name="snooze_1_hour">Отложить 1 час</string>
+    <string name="done_action">Готово</string>
+
+    <!-- Delete -->
+    <string name="delete_title">Удалить</string>
+    <string name="delete_confirmation">Удалить «%1$s»?</string>
+    <string name="delete_confirm">Удалить</string>
+    <string name="cancel">Отмена</string>
+
+    <!-- Weekly repeat -->
+    <string name="week_mon">Пн</string>
+    <string name="week_tue">Вт</string>
+    <string name="week_wed">Ср</string>
+    <string name="week_thu">Чт</string>
+    <string name="week_fri">Пт</string>
+    <string name="week_sat">Сб</string>
+    <string name="week_sun">Вс</string>
+
+    <!-- Search -->
+    <string name="search_hint">Поиск…</string>
+    <string name="today_button">Сегодня</string>
+
+    <!-- Settings -->
+    <string name="theme_section_title">Тема</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_system">Системная</string>
+    <string name="sound_section_title">Звуки</string>
+    <string name="notification_sound">Звук уведомлений</string>
+    <string name="notification_vibration">Вибрация</string>
+    <string name="reminder_section_title">Напоминания</string>
+    <string name="remind_before_label">Напоминать за</string>
+    <string name="reminder_label">Напоминание</string>
+    <string name="holiday_label">Праздничный день</string>
+    <string name="about_section_title">О приложении</string>
+    <string name="app_version">Версия 1.0</string>
+    <string name="app_description">Планировщик событий с интеграцией в системный календарь.</string>
+    <string name="color_label">Цвет</string>
+    <string name="color_default">Стандартный</string>
+    <string name="minutes_short">мин</string>
+    <string name="hour">час</string>
+    <string name="export_empty">Нет событий для экспорта</string>
+    <string name="export_button">Экспорт в .ics</string>
+    <string name="import_button">Импорт из .ics</string>
+    <string name="import_success">Импортировано событий: %1$d</string>
+    <string name="import_error">Ошибка импорта</string>
+    <string name="export_chooser_title">Экспорт</string>
+    <string name="remind_at_time">Сейчас</string>
+    <string name="remind_one_day">За сутки</string>
+    <string name="event_not_saved">Событие не будет сохранено</string>
+
+    <!-- Settings UI -->
+    <string name="sync_section">Синхронизация</string>
+    <string name="system_calendar">Системный календарь</string>
+    <string name="system_calendar_desc">Импорт событий при запуске</string>
+    <string name="holidays">Праздники</string>
+    <string name="holidays_desc">Государственные и церковные</string>
+    <string name="weather_section">Погода</string>
+    <string name="show_weather">Показывать погоду</string>
+    <string name="weather_desc">Текущая погода по геолокации</string>
+    <string name="location_enabled">Геолокация включена</string>
+    <string name="location_needed">Для погоды нужна геолокация</string>
+    <string name="export_error">Ошибка экспорта</string>
+    <string name="export_desc">Сохранить все события в файл</string>
+    <string name="import_desc">Восстановить события из файла</string>
+    <string name="permission_needed">Для выбора звука нужно разрешение</string>
+
+    <!-- Event types -->
+    <string name="holiday_state">Государственный праздник</string>
+    <string name="holiday_church">Церковный праздник</string>
+    <string name="holiday_professional">Профессиональный праздник</string>
+    <string name="holiday_other">Праздник</string>
+    <string name="all_day">Весь день</string>
+    <string name="every_week">Каждую неделю: %1$s</string>
+    <string name="every_day">Каждый день</string>
+    <string name="every_month">Каждый месяц</string>
+    <string name="every_year">Каждый год</string>
+
+    <!-- Weather -->
+    <string name="loading_weather">Загрузка погоды…</string>
+    <string name="humidity">Влажность</string>
+    <string name="wind">Ветер</string>
+    <string name="feels_like">Ощущается</string>
+    <string name="no_location">Нет доступа к геолокации</string>
+    <string name="weather_error">Не удалось загрузить погоду</string>
+    <string name="location_unavailable">Геолокация недоступна</string>
+    <string name="weather_load_error">Ошибка: %1$s</string>
+
+    <!-- Update -->
+    <string name="update_available">Доступно обновление</string>
+    <string name="current_version">Текущая версия: %1$s</string>
+    <string name="new_version">Новая версия: %1$s</string>
+    <string name="update_now">Обновить</string>
+    <string name="update_later">Позже</string>
+
+    <!-- Report -->
+    <string name="report_sent">Отчёт отправлен</string>
+    <string name="report_error">Ошибка: %1$s</string>
+    <string name="report_already_sent">Отчёт уже отправлен</string>
+    <string name="no_events">Событий пока нет</string>
+</resources>

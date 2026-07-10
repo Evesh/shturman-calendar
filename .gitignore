@@ -1,0 +1,35 @@
+# Build outputs
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+# Gradle
+.gradle
+/local.properties
+gradle.properties
+# IDE
+*.iml
+.idea/
+.DS_Store
+# Firebase (API ключи!)
+app/google-services.json
+# MiMoCode
+.mimocode/
+# Kotlin
+.kotlin/
+# Logs
+*.log
+log.txt
+# Release builds
+/app/release/
+# Temp
+temp/
+com.shturman.calendar_issue_*
+# Jokes (большой файл)
+app/src/main/assets/jokes.txt
+# Signing keys (НИКОГДА не коммитить!)
+*.jks
+*.keystore
+*release-keys*
+my-release-keys.jks
