@@ -3,40 +3,37 @@ package com.shturman.calendar.util
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.shturman.calendar.BuildConfig
-import kotlinx.coroutines.tasks.await
+import org.json.JSONObject
+import java.net.URL
 
 object UpdateChecker {
-    private const val REMOTE_VERSION_KEY = "latest_version"
-    private const val REMOTE_DOWNLOAD_URL_KEY = "download_url"
-    private const val REMOTE_UPDATE_MESSAGE_KEY = "update_message"
+    // GitHub repository URL
+    private const val GITHUB_REPO = "Evesh/shturman-calendar"
 
     suspend fun checkForUpdate(context: Context): UpdateInfo? {
         return try {
-            val remoteConfig = FirebaseRemoteConfig.getInstance()
-            val configSettings = FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(3600)
-                .build()
-            remoteConfig.setConfigSettingsAsync(configSettings).await()
-            remoteConfig.fetchAndActivate().await()
+            val url = "https://api.github.com/repos/$GITHUB_REPO/releases/latest"
+            AppLog.d("UpdateChecker: checking $url")
 
-            val latestVersion: String = remoteConfig.getString(REMOTE_VERSION_KEY)
-            val downloadUrl: String = remoteConfig.getString(REMOTE_DOWNLOAD_URL_KEY)
-            val updateMessage: String = remoteConfig.getString(REMOTE_UPDATE_MESSAGE_KEY)
+            val json = URL(url).readText()
+            val release = JSONObject(json)
+
+            val tagName = release.getString("tag_name").removePrefix("v")
+            val body = release.getString("body")
+            val downloadUrl = "https://github.com/$GITHUB_REPO/releases/download/v$tagName/app-release.apk"
 
             val currentVersion = BuildConfig.VERSION_NAME
 
-            if (latestVersion.isNotBlank() && latestVersion > currentVersion) {
-                AppLog.d("Update available: $latestVersion (current: $currentVersion)")
+            if (tagName.isNotBlank() && tagName > currentVersion) {
+                AppLog.d("Update available: $tagName (current: $currentVersion)")
                 UpdateInfo(
-                    version = latestVersion,
+                    version = tagName,
                     downloadUrl = downloadUrl,
-                    message = updateMessage.ifBlank { "Доступна новая версия $latestVersion" }
+                    message = body.ifBlank { "Доступна новая версия $tagName" }
                 )
             } else {
-                AppLog.d("No update available. Current: $currentVersion")
+                AppLog.d("No update available. Current: $currentVersion, Latest: $tagName")
                 null
             }
         } catch (e: Exception) {
