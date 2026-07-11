@@ -13,12 +13,27 @@ android {
     namespace = "com.shturman.calendar"
     compileSdk = 35
 
+    signingConfigs {
+        create("release") {
+            // Эти данные должны быть в local.properties или переменных окружения
+            val props = Properties()
+            val propFile = rootProject.file("local.properties")
+            if (propFile.exists()) {
+                props.load(propFile.inputStream())
+                storeFile = file(props.getProperty("KEYSTORE_PATH", "release.jks"))
+                storePassword = props.getProperty("KEYSTORE_PASSWORD", "")
+                keyAlias = props.getProperty("KEY_ALIAS", "")
+                keyPassword = props.getProperty("KEY_PASSWORD", "")
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "com.shturman.calendar"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

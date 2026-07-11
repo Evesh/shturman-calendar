@@ -183,27 +183,49 @@ object CalendarIntegration {
                 val rrule = it.getString(5)
                 val isAllDay = it.getInt(6) == 1
 
-                val cal = Calendar.getInstance().apply { timeInMillis = dtStart }
+                val cal = if (isAllDay) {
+                    Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { timeInMillis = dtStart }
+                } else {
+                    Calendar.getInstance().apply { timeInMillis = dtStart }
+                }
 
-                val period = when {
-                    rrule == null -> com.shturman.calendar.data.ReminderPeriod.ONCE
-                    rrule.contains("FREQ=DAILY") -> com.shturman.calendar.data.ReminderPeriod.DAILY
-                    rrule.contains("FREQ=WEEKLY") -> com.shturman.calendar.data.ReminderPeriod.WEEKLY
-                    rrule.contains("FREQ=MONTHLY") -> com.shturman.calendar.data.ReminderPeriod.MONTHLY
-                    rrule.contains("FREQ=YEARLY") -> com.shturman.calendar.data.ReminderPeriod.YEARLY
-                    else -> com.shturman.calendar.data.ReminderPeriod.ONCE
+                var period = com.shturman.calendar.data.ReminderPeriod.ONCE
+                var weeklyDays = ""
+
+                if (rrule != null) {
+                    when {
+                        rrule.contains("FREQ=DAILY") -> period = com.shturman.calendar.data.ReminderPeriod.DAILY
+                        rrule.contains("FREQ=WEEKLY") -> {
+                            period = com.shturman.calendar.data.ReminderPeriod.WEEKLY
+                            // Парсим BYDAY=MO,TU...
+                            val byDayMatch = Regex("BYDAY=([^;]+)").find(rrule)
+                            if (byDayMatch != null) {
+                                val daysStr = byDayMatch.groupValues[1]
+                                weeklyDays = daysStr.split(",")
+                                    .mapNotNull { day ->
+                                        when (day) {
+                                            "SU" -> 1; "MO" -> 2; "TU" -> 3; "WE" -> 4
+                                            "TH" -> 5; "FR" -> 6; "SA" -> 7; else -> null
+                                        }
+                                    }.joinToString(",")
+                            }
+                        }
+                        rrule.contains("FREQ=MONTHLY") -> period = com.shturman.calendar.data.ReminderPeriod.MONTHLY
+                        rrule.contains("FREQ=YEARLY") -> period = com.shturman.calendar.data.ReminderPeriod.YEARLY
+                    }
                 }
 
                 reminders.add(
                     Reminder(
                         title = title,
                         description = description,
-                        hour = cal.get(Calendar.HOUR_OF_DAY),
-                        minute = cal.get(Calendar.MINUTE),
+                        hour = if (isAllDay) 9 else cal.get(Calendar.HOUR_OF_DAY),
+                        minute = if (isAllDay) 0 else cal.get(Calendar.MINUTE),
                         dayOfMonth = cal.get(Calendar.DAY_OF_MONTH),
                         month = cal.get(Calendar.MONTH) + 1,
                         year = cal.get(Calendar.YEAR),
                         period = period,
+                        weeklyDays = weeklyDays,
                         melodyUri = null,
                         systemEventId = id,
                         isSyncedWithSystem = true,

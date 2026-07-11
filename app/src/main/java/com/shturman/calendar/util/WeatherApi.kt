@@ -18,24 +18,40 @@ data class WeatherData(
 
 object WeatherApi {
     private var cachedWeather: WeatherData? = null
+    private var cachedLat: Double = 0.0
+    private var cachedLon: Double = 0.0
 
     suspend fun getWeather(context: Context, lat: Double, lon: Double): WeatherData? {
         val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val cacheTime = prefs.getLong(ApiConfig.WEATHER_CACHE_TIME_KEY, 0)
         val now = System.currentTimeMillis()
 
-        if (cachedWeather != null && now - cacheTime < ApiConfig.WEATHER_CACHE_MAX_AGE) {
+        // Check if location is significantly different (more than ~5km)
+        val isLocationChanged = cachedWeather != null && 
+                (Math.abs(cachedLat - lat) > 0.05 || Math.abs(cachedLon - lon) > 0.05)
+
+        if (!isLocationChanged && cachedWeather != null && now - cacheTime < ApiConfig.WEATHER_CACHE_MAX_AGE) {
             return cachedWeather
         }
 
-        if (cachedWeather == null) {
+        if (!isLocationChanged && cachedWeather == null) {
             val cachedJson = prefs.getString(ApiConfig.WEATHER_CACHE_KEY, null)
-            if (cachedJson != null && now - cacheTime < ApiConfig.WEATHER_CACHE_MAX_AGE) {
+            val savedLat = prefs.getFloat("weather_cache_lat", 0f).toDouble()
+            val savedLon = prefs.getFloat("weather_cache_lon", 0f).toDouble()
+            
+            val savedLocationChanged = Math.abs(savedLat - lat) > 0.05 || Math.abs(savedLon - lon) > 0.05
+
+            if (!savedLocationChanged && cachedJson != null && now - cacheTime < ApiConfig.WEATHER_CACHE_MAX_AGE) {
                 cachedWeather = try {
                     val parts = cachedJson.split("|")
                     WeatherData(parts[0].toDouble(), parts[1].toDouble(), parts[2].toInt(), parts[3], parts[4], parts[5].toDouble())
                 } catch (_: Exception) { null }
-                if (cachedWeather != null) return cachedWeather
+                
+                if (cachedWeather != null) {
+                    cachedLat = savedLat
+                    cachedLon = savedLon
+                    return cachedWeather
+                }
             }
         }
 
@@ -51,8 +67,19 @@ object WeatherApi {
                 AppLog.d("WeatherApi: fetching weatherapi.com for $lat,$lon")
                 
                 val request = Request.Builder().url(url).build()
-                val response = ApiConfig.okHttpClient.newCall(request).execute()
-                val json = response.body?.string() ?: throw Exception("Empty response body")
+                val response = try {
+                    ApiConfig.okHttpClient.newCall(request).execute()
+                } catch (e: Exception) {
+                    throw Exception("Сеть недоступна: ${e.message}")
+                }
+                
+                if (!response.isSuccessful) {
+                    val code = response.code
+                    if (code == 401 || code == 403) throw Exception("Ошибка API (неверный ключ)")
+                    throw Exception("Ошибка сервера: $code")
+                }
+
+                val json = response.body?.string() ?: throw Exception("Пустой ответ от сервера")
 
                 AppLog.d("WeatherApi: raw response = $json")
                 
@@ -76,9 +103,14 @@ object WeatherApi {
                 )
 
                 cachedWeather = weather
+                cachedLat = lat
+                cachedLon = lon
+                
                 prefs.edit()
                     .putString(ApiConfig.WEATHER_CACHE_KEY, "${weather.temp}|${weather.feelsLike}|${weather.humidity}|${weather.description}|${weather.icon}|${weather.windSpeed}")
                     .putLong(ApiConfig.WEATHER_CACHE_TIME_KEY, now)
+                    .putFloat("weather_cache_lat", lat.toFloat())
+                    .putFloat("weather_cache_lon", lon.toFloat())
                     .apply()
                 
                 AppLog.d("WeatherApi: success - ${weather.temp}°C, ${weather.description}")

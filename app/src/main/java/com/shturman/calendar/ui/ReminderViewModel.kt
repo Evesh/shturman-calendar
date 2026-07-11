@@ -118,25 +118,62 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
                 val systemEvents = CalendarIntegration.importFromSystemCalendar(getApplication())
                 com.shturman.calendar.util.AppLog.d("Sync: found ${systemEvents.size} events from system calendar")
 
-                // Get ALL existing systemEventIds as Long set
-                val existingIds = dao.getAllRemindersList()
-                    .mapNotNull { it.systemEventId }
-                    .toSet()
-                com.shturman.calendar.util.AppLog.d("Sync: existing systemEventIds=$existingIds")
-
+                // Получаем все существующие напоминания, привязанные к системе
+                val allReminders = dao.getAllRemindersList()
+                val existingRemindersMap = allReminders
+                    .filter { it.systemEventId != null }
+                    .associateBy { it.systemEventId!! }
+                
                 var imported = 0
+                var updated = 0
+                
                 systemEvents.forEach { event ->
-                    if (event.systemEventId != null && event.systemEventId !in existingIds) {
+                    val systemId = event.systemEventId ?: return@forEach
+                    val existing = existingRemindersMap[systemId]
+                    
+                    if (existing == null) {
+                        // Новое событие
                         val id = dao.insertReminder(event)
                         val newEvent = event.copy(id = id.toInt())
                         if (newEvent.isEnabled) {
                             scheduler.schedule(newEvent)
                         }
                         imported++
+                    } else {
+                        // Проверяем, изменилось ли что-то (заголовок, время, описание)
+                        val hasChanged = existing.title != event.title ||
+                                         existing.hour != event.hour ||
+                                         existing.minute != event.minute ||
+                                         existing.dayOfMonth != event.dayOfMonth ||
+                                         existing.month != event.month ||
+                                         existing.year != event.year ||
+                                         existing.isAllDay != event.isAllDay ||
+                                         existing.period != event.period ||
+                                         existing.weeklyDays != event.weeklyDays
+                        
+                        if (hasChanged) {
+                            val updatedReminder = existing.copy(
+                                title = event.title,
+                                description = event.description,
+                                hour = event.hour,
+                                minute = event.minute,
+                                dayOfMonth = event.dayOfMonth,
+                                month = event.month,
+                                year = event.year,
+                                isAllDay = event.isAllDay,
+                                period = event.period,
+                                weeklyDays = event.weeklyDays
+                            )
+                            dao.insertReminder(updatedReminder)
+                            if (updatedReminder.isEnabled) {
+                                scheduler.schedule(updatedReminder)
+                            }
+                            updated++
+                        }
                     }
                 }
-                com.shturman.calendar.util.AppLog.d("Sync: imported $imported new events")
-                if (imported > 0) updateWidget()
+                com.shturman.calendar.util.AppLog.d("Sync: imported $imported, updated $updated")
+                if (imported > 0 || updated > 0) updateWidget()
             } catch (e: Exception) {
                 com.shturman.calendar.util.AppLog.e("Sync failed", e)
                 com.shturman.calendar.util.CrashlyticsHelper.logError("ReminderViewModel", "syncFromSystemCalendar: ${e.message}", e)
