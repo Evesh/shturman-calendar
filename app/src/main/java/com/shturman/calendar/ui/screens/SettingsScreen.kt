@@ -117,6 +117,7 @@ fun SettingsContent(
     var themeMode by remember { mutableStateOf(getThemeMode(context)) }
     var soundEnabled by remember { mutableStateOf(sharedPrefs.getBoolean("sound_enabled", true)) }
     var vibrateEnabled by remember { mutableStateOf(sharedPrefs.getBoolean("vibrate_enabled", true)) }
+    var overrideSilentMode by remember { mutableStateOf(sharedPrefs.getBoolean("override_silent_mode", false)) }
 
     Scaffold(
         topBar = {
@@ -464,7 +465,11 @@ fun SettingsContent(
                     fontWeight = FontWeight.Bold
                 )
 
-                Text(stringResource(R.string.app_version), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = stringResource(R.string.app_version, com.shturman.calendar.BuildConfig.VERSION_NAME),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 if (firebaseError != null) {
                     Text(firebaseError!!, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 4.dp))

@@ -76,7 +76,7 @@
     <string name="reminder_label">Напоминание</string>
     <string name="holiday_label">Праздничный день</string>
     <string name="about_section_title">О приложении</string>
-    <string name="app_version">Версия 1.0</string>
+    <string name="app_version">Версия %1$s</string>
     <string name="app_description">Планировщик событий с интеграцией в системный календарь.</string>
     <string name="color_label">Цвет</string>
     <string name="color_default">Стандартный</string>

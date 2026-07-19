@@ -39,8 +39,35 @@ class ReminderScheduler(private val context: Context) {
             set(Calendar.MILLISECOND, 0)
         }
 
-        // Если время в прошлом - ищем следующее вхождение
-        while (calendar.timeInMillis <= System.currentTimeMillis()) {
+        // Находим следующее актуальное время срабатывания
+        val now = System.currentTimeMillis()
+        val finalTime: Long
+        while (true) {
+            val triggerTime = calendar.timeInMillis - (reminder.remindBeforeMinutes * 60 * 1000L)
+
+            if (triggerTime > now) {
+                finalTime = triggerTime
+                break
+            }
+
+            // Если триггер в прошлом, но само событие еще не наступило (окно уведомления)
+            if (calendar.timeInMillis > now) {
+                val diff = now - triggerTime
+                if (diff < 15000L) {
+                    // Считаем, что это тот самый триггер, который сейчас обрабатывается
+                    if (reminder.period == ReminderPeriod.ONCE) return
+                    // Для повторяющихся - переходим к следующему циклу, чтобы продвинуть календарь
+                } else {
+                    // Это "пропущенное" уведомление (например, телефон был выключен) - уведомляем сейчас
+                    finalTime = now + 1000L
+                    break
+                }
+            } else if (reminder.period == ReminderPeriod.ONCE) {
+                // Событие уже полностью в прошлом
+                return
+            }
+
+            // Переходим к следующему повтору
             when (reminder.period) {
                 ReminderPeriod.DAILY -> calendar.add(Calendar.DAY_OF_YEAR, 1)
                 ReminderPeriod.WEEKLY -> {
@@ -56,28 +83,9 @@ class ReminderScheduler(private val context: Context) {
                 }
                 ReminderPeriod.MONTHLY -> calendar.add(Calendar.MONTH, 1)
                 ReminderPeriod.YEARLY -> calendar.add(Calendar.YEAR, 1)
-                ReminderPeriod.ONCE -> break
+                ReminderPeriod.ONCE -> return
             }
-            if (reminder.period == ReminderPeriod.ONCE) break
         }
-
-        // Если это разовое событие и оно уже в прошлом - ничего не планируем
-        if (calendar.timeInMillis <= System.currentTimeMillis() && reminder.period == ReminderPeriod.ONCE) {
-            return
-        }
-
-        // Рассчитываем время с учетом "напомнить за..."
-        val triggerTime = calendar.timeInMillis - (reminder.remindBeforeMinutes * 60 * 1000L)
-        
-        // Если время уведомления уже в прошлом, но само событие еще нет - уведомляем сейчас
-        val finalTime = if (triggerTime < System.currentTimeMillis() && calendar.timeInMillis > System.currentTimeMillis()) {
-            System.currentTimeMillis() + 1000L // Через секунду
-        } else {
-            triggerTime
-        }
-
-        // Не ставим будильник, если итоговое время всё равно в прошлом
-        if (finalTime <= System.currentTimeMillis()) return
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

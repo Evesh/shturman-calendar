@@ -31,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
 
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
@@ -208,7 +209,10 @@ class MainActivity : ComponentActivity() {
             .setTitle("Доступно обновление")
             .setMessage("${updateInfo.message}\n\nТекущая версия: ${BuildConfig.VERSION_NAME}\nНовая версия: ${updateInfo.version}")
             .setPositiveButton("Обновить") { _, _ ->
-                com.shturman.calendar.util.UpdateChecker.openDownloadUrl(this, updateInfo.downloadUrl)
+                // Используем новую функцию для автоматического скачивания и установки
+                lifecycleScope.launch {
+                    com.shturman.calendar.util.UpdateChecker.downloadAndInstall(this@MainActivity, updateInfo.downloadUrl)
+                }
             }
             .setNegativeButton("Позже", null)
             .show()

@@ -156,17 +156,15 @@ object CalendarIntegration {
             CalendarContract.Events.CALENDAR_ID
         )
 
-        AppLog.d("CalendarSync: querying events (last 2 years + next 2 years)")
+        AppLog.d("CalendarSync: querying all non-deleted events")
 
-        // Ограничиваем 2 года назад и 2 года вперёд для производительности
-        val start = System.currentTimeMillis() - 2L * 365 * 24 * 60 * 60 * 1000
-        val end = System.currentTimeMillis() + 2L * 365 * 24 * 60 * 60 * 1000
-
+        val selection = "${CalendarContract.Events.DELETED} = 0"
+        
         val cursor = context.contentResolver.query(
             CalendarContract.Events.CONTENT_URI,
             projection,
-            "${CalendarContract.Events.DTSTART} >= ? AND ${CalendarContract.Events.DTSTART} <= ?",
-            arrayOf(start.toString(), end.toString()),
+            selection,
+            null,
             "${CalendarContract.Events.DTSTART} ASC"
         )
 
